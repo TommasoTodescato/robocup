@@ -19,35 +19,62 @@ const int B_PWMB = 6;
 //  driver A motore B -> 2
 //  driver B motore B -> 3
 
-bool gira(int id, bool senso, int potenza, int millis)
+
+// dir:
+//  1 - avanti
+//  2 - destra
+//  3 - sinistra
+bool gira(int dir, bool senso, int potenza, int millis)
 {
-  switch(id)
+  switch(dir)
   {
     case 1:
       digitalWrite(A_STBY, HIGH);
+
       digitalWrite(A_AIN1, senso);
       digitalWrite(A_AIN2, !senso);
       analogWrite(A_PWMA, potenza);
+
+      digitalWrite(A_BIN1, senso);
+      digitalWrite(A_BIN2, !senso);
+      analogWrite(A_PWMB, potenza);
+      
       delay(millis);
       digitalWrite(A_STBY, LOW);
       break;
 
     case 2:
       digitalWrite(A_STBY, HIGH);
+      digitalWrite(B_STBY, HIGH);
+
       digitalWrite(A_BIN1, senso);
       digitalWrite(A_BIN2, !senso);
       analogWrite(A_PWMB, potenza);
-      delay(millis);
-      digitalWrite(A_STBY, LOW);
-      break;
 
-    case 3:
-      digitalWrite(B_STBY, HIGH);
       digitalWrite(B_BIN1, senso);
       digitalWrite(B_BIN2, !senso);
       analogWrite(B_PWMB, potenza);
+      
       delay(millis);
+      digitalWrite(A_STBY, LOW);
       digitalWrite(B_STBY, LOW);
+      break;
+
+    case 3:
+      digitalWrite(A_STBY, HIGH);
+      digitalWrite(B_STBY, HIGH);
+      
+      digitalWrite(A_AIN1, senso);
+      digitalWrite(A_AIN2, !senso);
+      analogWrite(A_PWMA, potenza);
+
+      digitalWrite(B_BIN1, senso);
+      digitalWrite(B_BIN2, !senso);
+      analogWrite(B_PWMB, potenza);
+      
+      delay(millis);
+      digitalWrite(A_STBY, LOW);
+      digitalWrite(B_STBY, HIGH);
       break;
 
     default:

@@ -5,7 +5,6 @@
 
 
 
-
 // DRIVER
 // driver A (destra)
 const int A_PWMA = 7;
@@ -63,24 +62,37 @@ bool gira(int id, bool senso, int potenza, int millis)
   return true;
 }
 
-
 // GYRO
 MPU6050 mpu(wire);
-float gyroX = 0.0f, gyroY = 0.0f;
+float gyroBaseX = 0.0f, gyroX = 0.0f;
 void setGyroZero()
 {
-  gyroX = mpu.getGyroAngleX();
-  gyroY = mpu.getGyroAngleY();
+  gyroBaseX = mpu.getAngleX();
 }
 
 void setup()
 {
   Serial.begin(9600);
   Wire.begin();
+  setGyroZero();
 }
 
 void loop()
 {
   mpu.update();
+  gyroX = mpu.getAngleX();
+
+  // conviene fare tutti piccoli intervalli
+  // se >= 0 (o viceversa) va avanti
+  if (gyroX >= 0)
+  {
+    gira(1, true, 200, 1000);
+  }
+  else
+  {
+    direzione;
+  }
+
+
   mpu.getGyroAngleX();
 }
