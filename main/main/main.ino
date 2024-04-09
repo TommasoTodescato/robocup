@@ -3,8 +3,6 @@
 
 // GENERALI
 
-
-
 // DRIVER
 // driver A (destra)
 const int A_PWMA = 7;
@@ -25,17 +23,15 @@ const int B_PWMB = 6;
 //  driver A motore B -> 2
 //  driver B motore B -> 3
 
-
 //INFRA
-#define AVERAGE 10
+#define AVERAGE 20
 #define AVANTI_INIZIO 4
 #define AVANTI_FINE 12
 #define DIETRO_INIZIO 5
 #define DIETRO_FINE 11
 
-int media_avanti = 0, media_dietro = 0; 
-int start_values[16];
-
+long media_avanti = 0, media_dietro = 0;
+long start_avanti = 0, start_dietro = 0;
 
 bool gira(int id, bool senso, int potenza, int millis)
 {
@@ -77,63 +73,70 @@ bool gira(int id, bool senso, int potenza, int millis)
 // GYRO
 MPU6050 mpu(Wire);
 float gyroBaseX = 0.0f, gyroX = 0.0f;
-void setGyroZero()
+void SetGyroZero()
 {
   gyroBaseX = mpu.getAngleX();
 }
 
 //INFRA MEDIA
-void Set_Infra(){
+void Set_Infra()
+{
   
-   for (int i = 0; i < 16; i++){
-    start_values[i] = 0;
-  }
-    
-
-  for (int h = 0; h < 16; h++)
+  for (int i = 0; i < AVERAGE; i++)
   {
-    for (int i = 0; i < AVERAGE; i++)
+    for (int h = 0; h < 16; h++)
     {
-      start_values[h] += analogRead(h);
+      int v = analogRead(h);
       delay(5);
+
+      if (h >= AVANTI_INIZIO && h <= AVANTI_FINE)
+      {
+        start_avanti += v;
+      }
+      else
+      {
+        start_dietro += v;
+      }
     }
   }
-
-  for (int i = 0; i < 16; i++)
-  {
-    start_values[i] = start_values[i] / AVERAGE;
-    Serial.println(start_values[i]);
-  }
- 
-
   
+  delay(1000);
 }
 
-void Run_Infra(){
-  
-  for(int h = 0; h < 16; h++)
+void Run_Infra()
+{
+  delay(1000);
+  for(int i = 0; i < AVERAGE; i++)
   {
-    for(int i = 0; i < AVERAGE; i++)
+    for(int h = 0; h < 16; h++)
     {
       int v = analogRead(h);
       delay(5);
       
-      if (h >= AVANTI_INIZIO && h < AVANTI_FINE)
+      if (h >= AVANTI_INIZIO && h <= AVANTI_FINE)
+      {
         media_avanti += v;
+      }
       else
+      {
         media_dietro += v;
+      }
     }
   }
+  
+  media_avanti -= start_avanti;
+  media_dietro -= start_dietro;
+  media_dietro -= 270; 
+  media_avanti = abs(media_avanti); 
+  media_dietro = abs(media_dietro); 
   if (media_avanti > media_dietro)
   {
+    Serial.println("avanti");
     gira(1, true, 200, 1000);
     gira(3, true, 200, 1000);
-    Serial.println("avanti");
-    //Serial.println(media_avanti);
-    //Serial.println(media_dietro);
   }
-
   else
+  {
     Serial.println("dietro");
     gira(1, true, 200, 1000);
     gira(3, false, 200, 1000);
@@ -141,45 +144,22 @@ void Run_Infra(){
 
     gira(1, true, 200, 1000);
     gira(3, true, 200, 1000);
+  }
 
   media_avanti = media_dietro = 0;
-
 }
 
 void setup()
 {
-  Serial.begin(1200); 
+  Serial.begin(9600); 
   Wire.begin();
-  setGyroZero();
-  Set_Infra(); 
-  Serial.println("settato"); 
-  Serial.println("run"); 
-  
-  
- 
+  SetGyroZero();
+  Set_Infra();
 }
 
 void loop()
 {
-  mpu.update();
-  gyroX = mpu.getAngleX();
-
-  // conviene fare tutti piccoli intervalli
-  // se >= 0 (o viceversa) va avanti
-  if (gyroX >= 0)
-  {
-    gira(1, true, 200, 1000);
-  }
-  else
-  {
-    //direzione;
-  }
-
-
-  mpu.getGyroAngleX();
-
+  // mpu.update();
   
   Run_Infra(); 
-
- 
 }
