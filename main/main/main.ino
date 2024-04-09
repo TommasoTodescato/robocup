@@ -25,6 +25,18 @@ const int B_PWMB = 6;
 //  driver A motore B -> 2
 //  driver B motore B -> 3
 
+
+//INFRA
+#define AVERAGE 10
+#define AVANTI_INIZIO 4
+#define AVANTI_FINE 12
+#define DIETRO_INIZIO 5
+#define DIETRO_FINE 11
+
+int media_avanti = 0, media_dietro = 0; 
+int start_values[16];
+
+
 bool gira(int id, bool senso, int potenza, int millis)
 {
   switch(id)
@@ -63,18 +75,88 @@ bool gira(int id, bool senso, int potenza, int millis)
 }
 
 // GYRO
-MPU6050 mpu(wire);
+MPU6050 mpu(Wire);
 float gyroBaseX = 0.0f, gyroX = 0.0f;
 void setGyroZero()
 {
   gyroBaseX = mpu.getAngleX();
 }
 
+//INFRA MEDIA
+void Set_Infra(){
+  
+   for (int i = 0; i < 16; i++){
+    start_values[i] = 0;
+  }
+    
+
+  for (int h = 0; h < 16; h++)
+  {
+    for (int i = 0; i < AVERAGE; i++)
+    {
+      start_values[h] += analogRead(h);
+      delay(5);
+    }
+  }
+
+  for (int i = 0; i < 16; i++)
+  {
+    start_values[i] = start_values[i] / AVERAGE;
+    Serial.println(start_values[i]);
+  }
+ 
+
+  
+}
+
+void Run_Infra(){
+  
+  for(int h = 0; h < 16; h++)
+  {
+    for(int i = 0; i < AVERAGE; i++)
+    {
+      int v = analogRead(h);
+      delay(5);
+      
+      if (h >= AVANTI_INIZIO && h < AVANTI_FINE)
+        media_avanti += v;
+      else
+        media_dietro += v;
+    }
+  }
+  if (media_avanti > media_dietro)
+  {
+    gira(1, true, 200, 1000);
+    gira(3, true, 200, 1000);
+    Serial.println("avanti");
+    //Serial.println(media_avanti);
+    //Serial.println(media_dietro);
+  }
+
+  else
+    Serial.println("dietro");
+    gira(1, true, 200, 1000);
+    gira(3, false, 200, 1000);
+    gira(2, true, 200, 500);
+
+    gira(1, true, 200, 1000);
+    gira(3, true, 200, 1000);
+
+  media_avanti = media_dietro = 0;
+
+}
+
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(1200); 
   Wire.begin();
   setGyroZero();
+  Set_Infra(); 
+  Serial.println("settato"); 
+  Serial.println("run"); 
+  
+  
+ 
 }
 
 void loop()
@@ -90,9 +172,14 @@ void loop()
   }
   else
   {
-    direzione;
+    //direzione;
   }
 
 
   mpu.getGyroAngleX();
+
+  
+  Run_Infra(); 
+
+ 
 }
