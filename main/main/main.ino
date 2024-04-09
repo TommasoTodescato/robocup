@@ -1,10 +1,7 @@
 #include <MPU6050_tockn.h>
 #include <Wire.h>
 
-// GENERALI
-
 // DRIVER
-// driver A (destra)
 // driver A (destra)
 const int A_PWMA = 7;
 const int A_AIN1 = 8;   // motore 1
@@ -84,7 +81,7 @@ void SetGyroZero()
 //INFRA MEDIA
 void Set_Infra()
 {
-  
+  delay(500);
   for (int i = 0; i < AVERAGE; i++)
   {
     for (int h = 0; h < 16; h++)
@@ -102,13 +99,12 @@ void Set_Infra()
       }
     }
   }
-  
-  delay(1000);
+  delay(500);
 }
 
 void Run_Infra()
 {
- delay(1000);
+  delay(1000);
   for(int i = 0; i < AVERAGE; i++)
   {
     for(int h = 0; h < 16; h++)
@@ -137,7 +133,6 @@ void Run_Infra()
     Serial.println("avanti");
     gira(1, true, 200, 1000);
     gira(3, true, 200, 1000);
-  
   }
   else
   {
@@ -146,31 +141,24 @@ void Run_Infra()
     gira(3, false, 200, 500);
     gira(2, true, 200, 500);
 
-
     gira(1, true, 200, 1000);
     gira(3, true, 200, 1000);
-}
- media_avanti = media_dietro = 0;
+  }
+media_avanti = media_dietro = 0;
 }
 
 void setup()
 {
+  for (int i = 2; i < 14; i++)
+    pinMode(i, OUTPUT);
+  
   Serial.begin(9600); 
   Wire.begin();
-    for (int i = 2; i < 14; i++){
-    pinMode(i, OUTPUT);
-}
   SetGyroZero();
   Set_Infra();
 }
 
 void loop()
 {
-  
- 
-  Run_Infra(); 
-  
-  }
-
- 
-
+  Run_Infra();
+} 
