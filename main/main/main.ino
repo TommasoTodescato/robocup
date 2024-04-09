@@ -5,6 +5,7 @@
 
 // DRIVER
 // driver A (destra)
+// driver A (destra)
 const int A_PWMA = 7;
 const int A_AIN1 = 8;   // motore 1
 const int A_AIN2 = 9;   // --------
@@ -12,6 +13,7 @@ const int A_STBY = 10;
 const int A_BIN1 = 11;  // motore 2
 const int A_BIN2 = 12;  // --------
 const int A_PWMB = 13;
+
 // driver B (sinistra)
 const int B_PWMA = 2;
 const int B_STBY = 3;
@@ -67,6 +69,7 @@ bool gira(int id, bool senso, int potenza, int millis)
     default:
       return false;
   }
+
   return true;
 }
 
@@ -105,7 +108,7 @@ void Set_Infra()
 
 void Run_Infra()
 {
-  delay(1000);
+ delay(1000);
   for(int i = 0; i < AVERAGE; i++)
   {
     for(int h = 0; h < 16; h++)
@@ -134,32 +137,40 @@ void Run_Infra()
     Serial.println("avanti");
     gira(1, true, 200, 1000);
     gira(3, true, 200, 1000);
+  
   }
   else
   {
     Serial.println("dietro");
-    gira(1, true, 200, 1000);
-    gira(3, false, 200, 1000);
+    gira(1, true, 200, 500);
+    gira(3, false, 200, 500);
     gira(2, true, 200, 500);
+
 
     gira(1, true, 200, 1000);
     gira(3, true, 200, 1000);
-  }
-
-  media_avanti = media_dietro = 0;
+}
+ media_avanti = media_dietro = 0;
 }
 
 void setup()
 {
   Serial.begin(9600); 
   Wire.begin();
+    for (int i = 2; i < 14; i++){
+    pinMode(i, OUTPUT);
+}
   SetGyroZero();
   Set_Infra();
 }
 
 void loop()
 {
-  // mpu.update();
   
+ 
   Run_Infra(); 
-}
+  
+  }
+
+ 
+
