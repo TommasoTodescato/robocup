@@ -128,21 +128,22 @@ void Run_Infra()
   media_dietro -= 270; 
   media_avanti = abs(media_avanti); 
   media_dietro = abs(media_dietro); 
+  delay(500);
   if (media_avanti > media_dietro)
   {
     Serial.println("avanti");
-    gira(1, true, 200, 1000);
-    gira(3, true, 200, 1000);
+    gira(1, true, 200, 2000);
+    gira(3, true, 200, 2000);
   }
   else
   {
     Serial.println("dietro");
-    gira(1, true, 200, 500);
-    gira(3, false, 200, 500);
-    gira(2, true, 200, 500);
-
     gira(1, true, 200, 1000);
-    gira(3, true, 200, 1000);
+    gira(3, false, 200, 1000);
+    gira(2, true, 200, 1000);
+    delay(500);
+    gira(1, true, 200, 2000);
+    gira(3, true, 200, 2000);
   }
 media_avanti = media_dietro = 0;
 }
